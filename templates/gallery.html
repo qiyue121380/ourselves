@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.SITE_TITLE }} 💕</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="gallery-page">
+    <!-- 花瓣飘落 -->
+    <canvas id="petals-canvas"></canvas>
+
+    <!-- 背景音乐控制 -->
+    {% if config.BACKGROUND_MUSIC %}
+    <audio id="bg-music" loop>
+        <source src="{{ config.BACKGROUND_MUSIC }}" type="audio/mpeg">
+    </audio>
+    <button id="music-toggle" class="music-toggle">🎵</button>
+    {% endif %}
+
+    <!-- 顶部导航 -->
+    <header class="gallery-header">
+        <div class="header-left">
+            <h1 class="site-title">{{ config.SITE_TITLE }}</h1>
+            <p class="site-subtitle">{{ config.LOVE_SUBTITLE }}</p>
+        </div>
+        <div class="header-right">
+            <button id="upload-btn" class="nav-btn">
+                <span>📸</span> 上传照片
+            </button>
+            <button id="love-text-btn" class="nav-btn">
+                <span>💌</span> 今日情话
+            </button>
+            <a href="/logout" class="nav-btn logout-btn">
+                <span>🚪</span> 退出
+            </a>
+        </div>
+    </header>
+
+    <!-- 情话轮播条 -->
+    <div class="love-banner">
+        <div class="love-text-carousel">
+            {% for text in config.LOVE_TEXTS %}
+            <span class="love-text-item {% if loop.first %}active{% endif %}">{{ text }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 上传区域（抽屉式） -->
+    <div id="upload-drawer" class="drawer">
+        <div class="drawer-overlay"></div>
+        <div class="drawer-content">
+            <button class="drawer-close">&times;</button>
+            <h2>📸 上传新照片</h2>
+            <p class="upload-hint">选择一张你们的照片，记录新的回忆</p>
+            <form id="upload-form">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="photo-input" name="photo" accept="image/*" hidden>
+                    <div class="upload-placeholder">
+                        <span class="upload-icon">🌹</span>
+                        <p>点击或拖拽照片到这里</p>
+                        <small>支持 JPG / PNG / GIF / WEBP，最大 20MB</small>
+                    </div>
+                    <img id="upload-preview" class="upload-preview" alt="预览">
+                </div>
+                <div class="caption-input-wrapper">
+                    <input type="text" id="caption" name="caption"
+                           placeholder="给这张照片写一句话吧...（可选）">
+                </div>
+                <button type="submit" class="upload-submit-btn">
+                    <span>💕</span> 保存到我们的空间
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 情话弹窗 -->
+    <div id="love-modal" class="modal">
+        <div class="modal-content love-modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="love-envelope">
+                <span class="envelope-icon">💌</span>
+                <p id="love-message"></p>
+                <small class="love-signature">— {{ config.YOUR_NAME }} 写给 {{ config.HER_NAME }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片墙 -->
+    <main class="gallery-main">
+        {% if photos %}
+        <div class="photo-grid" id="photo-grid">
+            {% for photo in photos %}
+            <div class="photo-card" data-id="{{ photo.id }}" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                <div class="photo-wrapper">
+                    <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}"
+                         alt="{{ photo.caption }}" loading="lazy">
+                    <div class="photo-overlay">
+                        <button class="photo-view-btn" title="查看大图">🔍</button>
+                        <button class="photo-delete-btn" title="删除" data-id="{{ photo.id }}">🗑️</button>
+                    </div>
+                </div>
+                <div class="photo-info">
+                    <p class="photo-caption">{{ photo.caption }}</p>
+                    <span class="photo-date">{{ photo.date }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📷</span>
+            <h3>还没有照片哦</h3>
+            <p>点击右上角「上传照片」开始记录你们的美好时光吧~</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- 大图查看器 -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close">&times;</button>
+        <button class="lightbox-prev">‹</button>
+        <button class="lightbox-next">›</button>
+        <img id="lightbox-img" src="" alt="">
+        <p id="lightbox-caption"></p>
+    </div>
+
+    <footer class="gallery-footer">
+        <p>💕 这是只属于 {{ config.YOUR_NAME }} 和 {{ config.HER_NAME }} 的小天地 💕</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // 初始化相册交互
+        initGallery();
+    </script>
+</body>
+</html>
