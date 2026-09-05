@@ -1,101 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config.SITE_TITLE }} 💕</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - Our Romantic Site</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="login-page">
-    <!-- 花瓣飘落背景 -->
-    <canvas id="petals-canvas"></canvas>
+<body>
+  <header>
+    <h1>🔐 登录</h1>
+    <p><a href="{{ url_for('index') }}" style="color:#d6336c;">← 返回首页</a></p>
+  </header>
 
-    <div class="login-container">
-        <div class="login-card">
-            <!-- 爱心动画 -->
-            <div class="heart-animation">
-                <svg viewBox="0 0 32 29.6" class="heart-icon">
-                    <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-                    c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-                </svg>
-            </div>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
 
-            <h1 class="login-title">{{ config.SITE_TITLE }}</h1>
-            <p class="login-subtitle">{{ config.LOVE_SUBTITLE }}</p>
-
-            <form id="login-form" class="login-form">
-                <div class="input-wrapper">
-                    <input type="password" id="password" name="password"
-                           placeholder="输入我们的秘密密码..." autocomplete="off" required>
-                    <span class="input-glow"></span>
-                </div>
-                <button type="submit" class="login-btn">
-                    <span>进 入</span>
-                    <span class="btn-heart">💕</span>
-                </button>
-            </form>
-
-            <p id="login-error" class="login-error"></p>
-
-            <div class="login-footer">
-                <span class="typing-text"></span>
-            </div>
-        </div>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        // 登录逻辑
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('login-error');
-            const btn = document.querySelector('.login-btn');
-
-            btn.classList.add('loading');
-            btn.querySelector('span').textContent = '验证中...';
-
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: 'password=' + encodeURIComponent(password)
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    // 浪漫的进入动画
-                    document.querySelector('.login-card').classList.add('fade-out');
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 600);
-                } else {
-                    errorEl.textContent = data.message;
-                    errorEl.classList.add('show');
-                    // 震动动画
-                    document.querySelector('.login-card').classList.add('shake');
-                    setTimeout(() => {
-                        document.querySelector('.login-card').classList.remove('shake');
-                    }, 500);
-                }
-            } catch (err) {
-                errorEl.textContent = '网络有点小问题，再试一次~';
-                errorEl.classList.add('show');
-            } finally {
-                btn.classList.remove('loading');
-                btn.querySelector('span').textContent = '进 入';
-            }
-        });
-
-        // 输入框聚焦效果
-        const passwordInput = document.getElementById('password');
-        passwordInput.addEventListener('focus', () => {
-            document.querySelector('.input-wrapper').classList.add('focused');
-        });
-        passwordInput.addEventListener('blur', () => {
-            document.querySelector('.input-wrapper').classList.remove('focused');
-        });
-    </script>
+    <form method="POST">
+      <input type="text" name="username" placeholder="用户名" required>
+      <input type="password" name="password" placeholder="密码" required>
+      <button type="submit">登录</button>
+    </form>
+    <p style="text-align:center;color:#999;font-size:0.85rem;">演示账号：admin / love123</p>
+  </div>
 </body>
 </html>

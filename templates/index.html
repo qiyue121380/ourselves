@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Romantic Site 💕</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>💕 我们的浪漫小站 💕</h1>
+    <p>记录每一个甜蜜瞬间</p>
+  </header>
+
+  <nav>
+    <a href="{{ url_for('index') }}">首页</a>
+    <a href="{{ url_for('gallery') }}">相册</a>
+    {% if session.get('user') %}
+      <a href="{{ url_for('logout') }}">退出</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">登录</a>
+    {% endif %}
+  </nav>
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <h2>最近照片</h2>
+    <div class="gallery">
+      {% for photo in photos[-6:] %}
+        <div class="card">
+          <img src="{{ photo.url }}" alt="{{ photo.caption }}" onerror="this.src='https://via.placeholder.com/300x200?text=Photo'">
+          <p>{{ photo.caption }}</p>
+        </div>
+      {% else %}
+        <p style="grid-column:1/-1;text-align:center;color:#a64d78;">还没有照片，快去添加吧～</p>
+      {% endfor %}
+    </div>
+
+    <h2 style="margin-top:32px;">留言墙</h2>
+    <div class="message-list">
+      {% for msg in messages[-10:] %}
+        <div class="message">
+          <strong>{{ msg.author }}</strong> <small>{{ msg.date }}</small>
+          <p>{{ msg.text }}</p>
+        </div>
+      {% else %}
+        <p style="text-align:center;color:#a64d78;">还没有留言</p>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
